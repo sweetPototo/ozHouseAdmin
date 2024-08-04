@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.oz.ozHouseAdmin.mapperadminboardMapper"> 
+<select id="adminQAList" parameterType="java.util.Map" resultType="Admin_QA_DTO">
+    SELECT * FROM admin_qa
+    <where>
+        <if test="admin_QA_state == 'answer_wait'">
+            AND admin_QA_state = 'f'
+        </if>
+        <if test="admin_QA_state == 'answer_complete'">
+            AND admin_QA_state = 't'
+        </if>
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND admin_QA_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+        <if test="admin_inquiry_type == 'order'">
+            AND admin_inquiry_type = '주문'
+        </if>
+        <if test="admin_inquiry_type == 'size'">
+            AND admin_inquiry_type = '사이즈'
+        </if>
+        <if test="admin_inquiry_type == 'delivery'">
+            AND admin_inquiry_type = '배송'
+        </if>
+        <if test="search != null and searchString != null and searchString != ''">
+        <choose>
+        	<when test="search == 'all'">
+                AND (
+                	admin_QA_subject LIKE '%' || #{searchString} || '%' OR
+                	member_id LIKE '%' || #{searchString} || '%'
+                )
+            </when>
+            <when test="search == 'admin_QA_subject'">
+                AND admin_QA_subject LIKE '%' || #{searchString} || '%'
+            </when>
+            <when test="search == 'member_id'">
+                AND member_id LIKE '%' || #{searchString} || '%'
+            </when>
+        </choose>
+        </if>
+    </where>
+</select>
+
+<select id="productqaCount" parameterType="java.util.Map" resultType="int">
+    SELECT count(*) FROM admin_qa
+    <where>
+        <if test="admin_QA_state == 'answer_wait'">
+            AND admin_QA_state = 'f'
+        </if>
+        <if test="admin_QA_state == 'answer_complete'">
+            AND admin_QA_state = 't'
+        </if>
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND admin_QA_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+        <if test="admin_inquiry_type == 'order'">
+            AND admin_inquiry_type = '주문'
+        </if>
+        <if test="admin_inquiry_type == 'size'">
+            AND admin_inquiry_type = '사이즈'
+        </if>
+        <if test="admin_inquiry_type == 'delivery'">
+            AND admin_inquiry_type = '배송'
+        </if>
+        <if test="search != null and searchString != null and searchString != ''">
+        <choose>
+        	<when test="search == 'all'">
+                AND (
+                	admin_QA_subject LIKE '%' || #{searchString} || '%' OR
+                	member_id LIKE '%' || #{searchString} || '%'
+                )
+            </when>
+            <when test="search == 'admin_QA_subject'">
+                AND admin_QA_subject LIKE '%' || #{searchString} || '%'
+            </when>
+            <when test="search == 'member_id'">
+                AND member_id LIKE '%' || #{searchString} || '%'
+            </when>
+        </choose>
+        </if>
+    </where>
+</select>
+
+	<select id="adminContent" parameterType="int" resultType="Admin_QA_DTO">
+		select * from admin_qa where admin_QA_num=#{admin_QA_num}
+	</select>
+
+	<insert id="adminReQa" parameterType="java.util.Map">
+		insert into admin_reqa values(#{admin_reQA_num},#{member_id},#{admin_reQA_subject},#{admin_reQA_content},sysdate)
+	</insert>
+	
+	<select id="adminReContent" parameterType="int" resultType="Admin_reQA_DTO">
+		select * from admin_reqa where admin_reQA_num=#{admin_reQA_num}
+	</select>
+	
+	<update id="adminReQaUpdate" parameterType="Admin_reQA_DTO">
+		update admin_reqa set admin_reQA_subject=#{admin_reQA_subject}, admin_reQA_content=#{admin_reQA_content}, admin_reQA_date=sysdate where admin_reQA_num=#{admin_reQA_num}
+	</update>
+	
+	<update id="adminQAstate" parameterType="int">
+		update admin_qa set admin_QA_state = 't' where admin_QA_num=#{admin_QA_num}
+	</update>
+	
+
+</mapper>

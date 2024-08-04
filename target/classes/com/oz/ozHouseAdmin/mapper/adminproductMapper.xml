@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.oz.ozHouseAdmin.mapper.adminproductMapper"> 
+	
+	<update id="updateProductToday" parameterType="java.util.Map">
+        UPDATE product
+        SET product_today = #{dealDate}
+        WHERE product_num = #{product_num}
+    </update>
+
+<!-- 
+	<update id="todays" parameterType="int">
+		update product set product_spec='todays' where product_num=#{product_num}
+	</update>
+ -->	
+	<update id="todays_no" parameterType="int">
+		update product set product_today='0' where product_num=#{product_num}
+	</update>
+
+
+	<select id="ListProduct" parameterType="java.util.Map" resultType="productDTO">
+		SELECT p.*, c.category_name, i.inbrand_company
+	    FROM product p
+	    LEFT JOIN category c ON p.category_num = c.category_num
+	    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+	    <where>
+	    	product_approval_status = 'ok'
+	    	<include refid="condition" />
+	    </where>
+	</select>
+
+	<select id="ListCount" parameterType="java.util.Map" resultType="int">
+		SELECT count(*)
+	    FROM product p
+	    LEFT JOIN category c ON p.category_num = c.category_num
+	    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+	    <where>
+	    	product_approval_status = 'ok'
+	    	<include refid="condition" />
+	    </where>
+	</select>
+
+
+
+	<select id="getProduct" parameterType="java.util.Map" resultType="productDTO">
+		SELECT p.*, c.category_name 
+    FROM product p
+    JOIN category c ON p.category_num = c.category_num
+    WHERE ${key} = #{value}
+	</select>
+	
+	<select id="getreProduct" parameterType="java.util.Map" resultType="requestproductDTO">
+		SELECT rp.*, c.category_name 
+    FROM requestproduct rp
+    JOIN category c ON rp.category_num = c.category_num
+    WHERE ${key} = #{value}
+	</select>
+	
+	<sql id="condition">
+	<if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+	           AND product_input_date BETWEEN #{startDate} AND #{endDate}
+	       </if>
+	        <if test="search != null and searchString != null and searchString != ''">
+	           <choose>
+        <when test="search == 'all'">
+                AND (
+                	p.product_num LIKE '%' || #{searchString} || '%' OR
+                	p.product_name LIKE '%' || #{searchString} || '%' OR
+                	c.category_name LIKE '%' || #{searchString} || '%' OR
+                	i.inbrand_company LIKE '%' || #{searchString} || '%'
+                )
+            </when>
+            <when test="search == 'product_num'">
+                AND p.product_num LIKE '%' || #{searchString} || '%'
+            </when>
+            <when test="search == 'product_name'">
+                AND p.product_name LIKE '%' || #{searchString} || '%'
+            </when>
+            <when test="search == 'category_name'">
+                AND c.category_name LIKE '%' || #{searchString} || '%'
+            </when>
+            <when test="search == 'inbrand_company'">
+                AND i.inbrand_company LIKE '%' || #{searchString} || '%'
+            </when>
+        </choose>
+	       </if>
+	</sql>
+	
+	<select id="requestListProduct" parameterType="java.util.Map" resultType="productDTO">
+  		SELECT p.*, c.category_name, i.inbrand_company
+	    FROM product p
+	    LEFT JOIN category c ON p.category_num = c.category_num
+	    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+	   <where>
+	        product_approval_status in ('f')
+	        <include refid="condition" />
+	   </where>
+	</select>
+	
+	<select id="requestListCount" parameterType="java.util.Map" resultType="int">
+  		SELECT count(*)
+	    FROM product p
+	    LEFT JOIN category c ON p.category_num = c.category_num
+	    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+	   <where>
+	        product_approval_status in ('f')
+	        <include refid="condition" />
+	   </where>
+	</select>
+	
+	<select id="cancelRequestProduct" parameterType="java.util.Map" resultType="productDTO">
+   		SELECT p.*, c.category_name, i.inbrand_company
+	    FROM product p
+	    LEFT JOIN category c ON p.category_num = c.category_num
+	    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+    <where>
+         product_approval_status in ('fc', 'dc', 'uc')
+         <include refid="condition" />
+    </where>
+	</select>
+	
+	<select id="cancelRequestCount" parameterType="java.util.Map" resultType="int">
+   		SELECT count(*)
+	    FROM product p
+	    LEFT JOIN category c ON p.category_num = c.category_num
+	    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+    <where>
+         product_approval_status in ('fc', 'dc', 'uc')
+         <include refid="condition" />
+    </where>
+	</select>
+	
+	<select id="deleteRequestProduct" parameterType="java.util.Map" resultType="productDTO">
+   		SELECT p.*, c.category_name, i.inbrand_company
+	    FROM product p
+	    LEFT JOIN category c ON p.category_num = c.category_num
+	    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+    <where>
+         product_approval_status = 'dr'
+         <include refid="condition" />
+    </where>
+	</select>
+	
+	<select id="deleteRequestCount" parameterType="java.util.Map" resultType="int">
+   		SELECT count(*) 
+	    FROM product p
+	    LEFT JOIN category c ON p.category_num = c.category_num
+	    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+    <where>
+         product_approval_status = 'dr'
+        <include refid="condition" />
+    </where>
+	</select>
+	
+	<select id="updateRequestListProduct" parameterType="java.util.Map" resultType="productDTO">
+   		SELECT p.*, c.category_name, i.inbrand_company
+	    FROM product p
+	    LEFT JOIN category c ON p.category_num = c.category_num
+	    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+    <where>
+         product_approval_status = 'ur'
+        <include refid="condition" />
+    </where>
+	</select>
+	
+<select id="allListProduct" parameterType="java.util.Map" resultType="productDTO">
+    SELECT p.*, c.category_name, i.inbrand_company
+    FROM product p
+    LEFT JOIN category c ON p.category_num = c.category_num
+    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+    <where>
+    
+    <if test="product_approval_status != null and product_approval_status != 'all'">
+        <choose>
+            <when test="product_approval_status == 'approval_cancle'">
+                AND product_approval_status in ('fc', 'dc', 'uc')
+            </when>
+            <when test="product_approval_status == 'approval_wait'">
+                AND product_approval_status in ('f', 'dr', 'ur')
+            </when>
+            <when test="product_approval_status == 'approval_pend'">
+                AND product_approval_status = 're'
+            </when>
+            <when test="product_approval_status == 'approval_consideration'">
+                AND product_approval_status = 'ca'
+            </when>
+            <when test="product_approval_status == 'approval_ok'">
+                AND product_approval_status = 'ro'
+            </when>
+            <when test="product_approval_status == 'approved'">
+                AND product_approval_status = 'ok'
+            </when>
+        </choose>
+    </if>
+    <include refid="condition" />
+    </where>
+</select>
+
+	
+	<select id="allListCount" parameterType="java.util.Map" resultType="int">
+		SELECT COUNT(*)
+	    FROM product p
+	    LEFT JOIN category c ON p.category_num = c.category_num
+	    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+	    <where>
+	    <if test="product_approval_status != null and product_approval_status != 'all'">
+            <choose>
+                <when test="product_approval_status == 'approval_cancle'">
+                    AND product_approval_status in ('fc', 'dc', 'uc')
+                </when>
+                <when test="product_approval_status == 'approval_wait'">
+                    AND product_approval_status in ('f', 'dr', 'ur')
+                </when>
+                <when test="product_approval_status == 'approval_pend'">
+                    AND product_approval_status = 're'
+                </when>
+                <when test="product_approval_status == 'approval_consideration'">
+                    AND product_approval_status = 'ca'
+                </when>
+                <when test="product_approval_status == 'approval_ok'">
+                    AND product_approval_status = 'ro'
+                </when>
+                <when test="product_approval_status == 'approved'">
+                    AND product_approval_status = 'ok'
+                </when>
+            </choose>
+        </if>
+	    <include refid="condition" />
+	    </where>
+	</select>
+	
+	<select id="updateRequestListCount" parameterType="java.util.Map" resultType="int">
+   		 SELECT count(*) 
+	    FROM product p
+	    LEFT JOIN category c ON p.category_num = c.category_num
+	    LEFT JOIN inbrand i ON p.mer_num = i.mer_num
+    <where>
+         product_approval_status = 'ur'
+         <include refid="condition" />
+    </where>
+	</select>
+
+<insert id="msgin" parameterType="MsgDTO">
+insert into msg values (#{product_num}, #{reason}, 'product')
+</insert>
+
+
+<update id="requestproductUpdate" parameterType="int">
+    UPDATE product p
+    SET
+        p.product_input_date = sysdate,
+       	p.product_name = (SELECT MAX(rp.product_name) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num}),
+        p.product_point = (SELECT MAX(rp.product_point) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num}),
+        p.category_num = (SELECT MAX(rp.category_num) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num}),
+        p.product_price = (SELECT MAX(rp.product_price) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num}),
+        p.product_modifier = (SELECT MAX(rp.product_modifier) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num}),
+        p.product_assembly_cost = (SELECT MAX(rp.product_assembly_cost) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num}),
+        p.product_discount_rate = (SELECT MAX(rp.product_discount_rate) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num}),
+        p.product_discount_price = (SELECT MAX(rp.product_discount_price) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num}),
+        p.product_image_change = (SELECT MAX(rp.product_image_change) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num}),
+        p.product_image = (SELECT MAX(rp.product_image) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num}),
+        p.product_image_pro_change = (SELECT MAX(rp.product_image_pro_change) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num}),
+        p.product_image_pro = (SELECT MAX(rp.product_image_pro) FROM requestproduct rp WHERE rp.product_num = p.product_num AND rp.product_num = #{product_num})
+    WHERE EXISTS (
+        SELECT 1 
+        FROM requestproduct rp 
+        WHERE 
+            p.product_num = rp.product_num AND 
+            rp.product_num = #{product_num}
+    )
+</update>
+
+	 <update id="productok" parameterType="int">
+		update product set product_approval_status='ok', product_input_date = sysdate where product_num = #{product_num}
+	</update>
+	
+	<update id="productCancel" parameterType="int">
+		update product set product_approval_status='ca', product_input_date = sysdate where product_num = #{product_num}
+	</update>
+	
+	<update id="productRe" parameterType="int">
+		update product set product_approval_status='re', product_input_date = sysdate where product_num = #{product_num}
+	</update>
+	
+	 <!-- 수정상품 update -->
+	 <update id="requestok" parameterType="int">
+		update product set product_approval_status='ok', product_input_date = sysdate where product_num = #{product_num}
+	</update>
+	
+	<update id="requestCancel" parameterType="int">
+		update product set product_approval_status='ca', product_input_date = sysdate where product_num = #{product_num}
+	</update>
+	
+	<update id="requestRe" parameterType="int">
+		update product set product_approval_status='re', product_input_date = sysdate where product_num = #{product_num}
+	</update>
+	
+	
+	<delete id="fcancle" parameterType="int">
+		delete from product where product_num = #{product_num}
+	</delete>
+	
+		<delete id="reproductfcancle" parameterType="int">
+		delete from requestproduct where product_num = #{product_num}
+	</delete>
+	
+	<update id="dcancle" parameterType="int">
+		update product set product_approval_status='ok', product_input_date = sysdate where product_num = #{product_num}
+	</update>
+	
+	<update id="ucancle" parameterType="int">
+		update product set product_approval_status='ok', product_input_date = sysdate where product_num = #{product_num}
+	</update>
+	
+	<delete id="deletereProduct" parameterType="int">
+		delete from requestproduct where product_num=#{product_num}
+	</delete>
+	
+	<delete id="deletemsg" parameterType="int">
+		delete from msg where product_num=#{product_num} and status='product'
+	</delete>
+</mapper>

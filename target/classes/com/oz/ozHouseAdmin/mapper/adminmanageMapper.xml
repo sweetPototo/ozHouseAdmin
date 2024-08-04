@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.oz.ozHouseAdmin.mapper.adminmanageMapper"> 
+	
+	<select id="allCount" resultType="int" parameterType="String">
+		select count (product_num) from product where product_approval_status in ('f', 'dr', 'ur','fc', 'dc', 'uc')
+	</select>
+	
+	<select id="waitCount" resultType="int" parameterType="String">
+		select count (product_num) from product where product_approval_status = 'f'
+	</select>
+	
+	<select id="requestCount" resultType="int" parameterType="String">
+		select count (product_num) from product where product_approval_status = 'ur'
+	</select>
+	
+	<select id="cancleCount" resultType="int" parameterType="String">
+		select count (product_num) from product where product_approval_status = 'dr'
+	</select>
+	
+	<select id="requestCancle" resultType="int" parameterType="String">
+		select count (product_num) from product where product_approval_status in ('fc', 'dc', 'uc')
+	</select>
+	 
+</mapper>

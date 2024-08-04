@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oz.ozHouseAdmin.mapper.storeAdminMapper">
+
+	<select id="selectMerchant" resultType="StoreListDTO">
+		SELECT 
+			* 
+		FROM 
+			MERCHANT m 
+		FULL OUTER JOIN 
+			INBRAND i 
+		ON 
+			m.MER_NUM = i.MER_NUM
+	</select>
+	
+	<select id="selectMerchantApplicate" resultType="StoreListDTO">
+		SELECT 
+			* 
+		FROM 
+			MERCHANT m 
+		FULL OUTER JOIN 
+			INBRAND i 
+		ON 
+			m.MER_NUM = i.MER_NUM
+		WHERE
+			m.MER_ISBRAND='f' and i.INBRAND_NUM IS NOT NULL
+	</select>
+	
+	<select id="selectMerchantComplete" resultType="StoreListDTO">
+		SELECT 
+			* 
+		FROM 
+			MERCHANT m 
+		FULL OUTER JOIN 
+			INBRAND i 
+		ON 
+			m.MER_NUM = i.MER_NUM
+		WHERE
+			m.MER_ISBRAND='t' and i.INBRAND_NUM IS NOT NULL and m.mer_delete is null
+	</select>
+	
+	<select id="selectMerchantDelete" resultType="StoreListDTO">
+		SELECT 
+			* 
+		FROM 
+			MERCHANT m 
+		FULL OUTER JOIN 
+			INBRAND i 
+		ON 
+			m.MER_NUM = i.MER_NUM
+		WHERE
+			m.mer_delete = 'del'
+	</select>
+	
+	<select id="selectCateNameMain" parameterType="int" resultType="String">
+		select category_name from category where CATEGORY_NUM = #{inbrand_category}
+	</select>
+	
+	<select id="merchantDetail" parameterType="String" resultType="StoreListDTO">
+		SELECT 
+			* 
+		FROM 
+			MERCHANT m 
+		FULL OUTER JOIN 
+			INBRAND i 
+		ON 
+			m.MER_NUM = i.MER_NUM 
+		WHERE 
+			m.MER_NUM = #{mer_num}
+	</select>
+	
+	<select id="searchStoreList" parameterType="Map" resultType="StoreListDTO">
+		SELECT 
+			* 
+		FROM 
+			MERCHANT m 
+		FULL OUTER JOIN 
+			INBRAND i 
+		ON 
+			m.MER_NUM = i.MER_NUM 
+		WHERE 
+		<if test="startDate != null and endDate != null">
+			${date} between #{startDate} and #{endDate} 
+		</if>
+		<if test="startDate != null and endDate != null and search == 'all' and searchString != null">
+		and 
+		</if>
+		<if test="search == 'all' and searchString != null">
+			(
+			    m.mer_num LIKE #{searchString}
+			    OR m.mer_company LIKE #{searchString}
+			    OR m.mer_id LIKE #{searchString}
+			    OR (m.MER_HP1 ||'-'||m.MER_HP2 ||'-'||m.MER_HP3) LIKE #{searchString}
+			    OR (m.MER_COMNUM1 ||'-'||m.MER_COMNUM2 ||'-'||m.MER_COMNUM3) LIKE #{searchString}
+			    OR m.mer_category LIKE #{searchString}
+			    OR m.mer_joindate LIKE #{searchString}
+			    OR i.inbrand_applicationdate LIKE #{searchString}
+			    OR i.inbrand_canceldate LIKE #{searchString}
+			    OR m.mer_inbranddate LIKE #{searchString}
+			)
+		</if>
+		<if test="startDate != null and endDate != null and search != null and search == 'mer_company'">
+		and 
+		</if>
+		<if test="search != null and search == 'mer_company'">
+			m.mer_company like #{searchString}
+		</if>
+		<if test="startDate != null and endDate != null and search != null and search == 'mer_id'">
+		and 
+		</if>
+		<if test="search != null and search == 'mer_id'">
+			m.mer_id like #{searchString}
+		</if>
+		<if test="startDate != null and endDate != null and ssearch != null and search == 'mer_num'">
+		and 
+		</if>
+		<if test="search != null and search == 'mer_num'">
+			m.mer_num like #{searchString}
+		</if>
+		<if test="startDate != null and endDate != null and search != null and search == 'mer_comnum'">
+		and 
+		</if>
+		<if test="search != null and search == 'mer_comnum'">
+			(m.MER_COMNUM1 ||'-'||m.MER_COMNUM2 ||'-'||m.MER_COMNUM3) LIKE #{searchString}
+		</if>
+		<if test="like == 'applicate'">
+			and m.MER_ISBRAND='f' and i.INBRAND_NUM IS NOT NULL
+		</if>
+		<if test="like == 'complete'">
+			and m.MER_ISBRAND='t' and i.INBRAND_NUM IS NOT NULL
+		</if>
+	</select>
+	
+	<select id="searchAdmin" parameterType="String" resultType="AdminDTO">
+		select admin_id, admin_passwd from admin where admin_num = #{admin_num}
+	</select>
+	
+	<update id="admindeleteOk" parameterType="String">
+		update merchant set mer_delete = 'del' where mer_num = #{mer_num}
+	</update>
+	
+	<update id="adminapproveOk" parameterType="String">
+		update merchant set mer_isbrand = 't', mer_inbranddate = sysdate where mer_num = #{mer_num}
+	</update>
+	
+	<select id="selectAllStore" resultType="int">
+		SELECT COUNT(*) FROM merchant
+	</select>
+	
+	<select id="selectAppliStoreCount" resultType="int">
+		SELECT COUNT(*) FROM merchant m FULL OUTER JOIN 
+			INBRAND i 
+		ON 
+			m.MER_NUM = i.MER_NUM where m.MER_ISBRAND='f' and i.INBRAND_NUM IS NOT NULL
+	</select>
+	
+	<select id="selectCompleteStoreCount" resultType="int">
+		SELECT COUNT(*) FROM merchant m FULL OUTER JOIN 
+			INBRAND i 
+		ON 
+			m.MER_NUM = i.MER_NUM
+		WHERE
+			m.MER_ISBRAND='t' and i.INBRAND_NUM IS NOT NULL and m.mer_delete is null
+	</select>
+	
+	<select id="selectDeleteStoreCount" resultType="int">
+		SELECT COUNT(*) FROM merchant m FULL OUTER JOIN 
+			INBRAND i 
+		ON 
+			m.MER_NUM = i.MER_NUM
+		WHERE
+			m.mer_delete = 'del'
+	</select>
+	
+	<update id="updateStore" parameterType="MerchantDTO">
+		update merchant set mer_homepage = #{mer_homepage}, 
+							mer_manname = #{mer_manname},
+							mer_manhp1 = #{mer_manhp1},
+							mer_manhp2 = #{mer_manhp2},
+							mer_manhp3 = #{mer_manhp3},
+							mer_manemail = #{mer_manemail},
+							mer_category = #{mer_category},
+							mer_othershop = #{mer_othershop},
+							mer_file = #{mer_file}
+		where mer_num = #{mer_num}
+	</update>
+	
+	<update id="admincancelOk" parameterType="String">
+		update inbrand set inbrand_canceldate = sysdate where mer_num = #{mer_num}
+	</update>
+	
+</mapper>

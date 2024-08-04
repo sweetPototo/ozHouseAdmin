@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.oz.ozHouseAdmin.mapper.adminMapper"> 
+
+	<insert id="insertAdmin" parameterType="AdminDTO">
+		insert into admin values(
+			admin_num_seq.nextval,
+			#{admin_id},
+			#{admin_passwd},
+			#{admin_email},
+			#{admin_hp1},
+			#{admin_hp2},
+			#{admin_hp3},
+			sysdate)
+	</insert>
+	
+	<select id="checkMerId" parameterType="String" resultType="AdminDTO">
+		select * from admin where admin_id=#{admin_id}
+	</select>
+	
+	<select id="allAdmin" resultType="AdminDTO">
+		select * from admin
+	</select>
+	
+	<delete id="adminDelete" parameterType="String">
+		delete from admin where admin_num=#{admin_num}
+	</delete>
+	
+	<update id="adminUpdate" parameterType="AdminDTO">
+		update admin set admin_hp1=#{admin_hp1}, admin_hp2=#{admin_hp2}, admin_hp3=#{admin_hp3}, admin_email=#{admin_email} where admin_num = #{admin_num}
+	</update>
+	
+	<update id="updatePass" parameterType="map">
+		update admin set admin_passwd = #{admin_pw} where admin_id = #{admin_id}
+	</update>
+	
+	<select id="checkMerchantIdEmail" parameterType="String" resultType="String">
+		select admin_id
+		from admin
+		where admin_email = #{admin_email}
+	</select>
+</mapper>

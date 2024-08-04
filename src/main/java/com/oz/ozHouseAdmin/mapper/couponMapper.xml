@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oz.ozHouseAdmin.mapper.couponMapper">
+<insert id="msgin_cou" parameterType="MsgDTO">
+insert into msg values (#{mer_couponnum}, #{reason}, 'coupon')
+</insert>
+	<select id="selectCoupon" resultType="Mer_CouponListDTO">
+		select * from mer_coupon join merchant on mer_coupon.mer_num = merchant.mer_num
+	</select>
+
+	<select id="couponDetail" parameterType="int" resultType="Mer_CouponListDTO">
+		select 
+			* 
+		from 
+			mer_coupon 
+		join 
+			merchant 
+		on 
+			mer_coupon.mer_num = merchant.mer_num 
+		where 
+			mer_coupon.mer_couponnum = #{mer_couponnum}
+	</select>
+	
+	<select id="allCouponCount" resultType="int">
+		SELECT COUNT(*) FROM MER_COUPON mc
+	</select>
+	
+	<select id="appliCount" resultType="int">
+		SELECT COUNT(*) FROM MER_COUPON mc WHERE mc.MER_ISAPPROVAL ='f'
+	</select>
+	
+	<select id="completeCount" resultType="int">
+		SELECT COUNT(*) FROM MER_COUPON mc WHERE mc.MER_ISAPPROVAL ='t'
+	</select>
+	
+	<update id="inputImg" parameterType="int">
+		update mer_coupon set mer_isapproval = 't' 
+		where mer_couponnum = #{mer_couponnum}
+	</update>
+	
+	<update id="couponCancelUpdate" parameterType="int">
+		update mer_coupon set mer_isapproval = 'c' where mer_couponnum = #{couponnum}
+	</update>
+	
+	<select id="searchCouponList" parameterType="Map" resultType="Mer_CouponListDTO">
+		SELECT 
+			* 
+		FROM 
+			mer_coupon mc 
+		join 
+			merchant m 
+		on 
+			mc.mer_num = m.mer_num WHERE 
+		<if test="startDate != null and endDate != null">
+			mc.${date} between #{startDate} and #{endDate} 
+		</if>
+		<if test="startDate != null and endDate != null and mer_isapproval != 'all'">
+		and 
+		</if>
+		<if test="mer_isapproval != 'all'">
+			mc.mer_isapproval = #{mer_isapproval}
+		</if>
+		<if test="mer_isapproval != 'all' and search == 'all' and searchString != null">
+		and 
+		</if>
+		<if test="search == 'all' and searchString != null">
+			(
+			    mc.mer_couponnum LIKE '%' || #{searchString} || '%'
+			    OR mc.mer_couponname LIKE '%' || #{searchString} || '%'
+			    OR mc.mer_isapproval LIKE '%' || #{searchString} || '%'
+			    OR mc.mer_coupondiscount LIKE '%' || #{searchString} || '%'
+			    OR mc.mer_couponusedate LIKE '%' || #{searchString} || '%'
+			    OR mc.mer_couponenddate LIKE '%' || #{searchString} || '%'
+			)
+		</if>
+		<if test="mer_isapproval != 'all' and search != null and search == 'mer_couponname'">
+		and 
+		</if>
+		<if test="search != null and search == 'mer_couponname'">
+			mc.mer_couponname like '%' || #{searchString} || '%'
+		</if>
+		<if test="mer_isapproval != 'all' and search != null and search == 'mer_couponname' and search == 'mer_couponnum'">
+		and 
+		</if>
+		<if test="search != null and search == 'mer_couponnum'">
+			mc.mer_couponnum like '%' || #{searchString} || '%'
+		</if>
+	</select>
+	
+	<delete id="couponDelete" parameterType="String">
+		delete from mer_coupon where mer_couponnum = #{mer_couponnum}
+	</delete>
+</mapper>
